@@ -3,12 +3,13 @@ import {baseUrl} from '../shared/baseUrl';
 
 
 export const fetchMovies= (page) => {
+    console.log(`fetchMovies(${page})`);
     var url = baseUrl+`&page=${page}`;
     return (dispatch) => {
-        fetch(url)
+        return fetch(url)
     .then(response => {
         if(response.ok){
-            response.json();
+            return response.json();
         }
         else{
             var error = new Error('Error '+response.status+': '+response.text);
@@ -20,16 +21,13 @@ export const fetchMovies= (page) => {
         var errMess = new Error(error.message);
         throw errMess;
     })
-    .then(movies => dispatch(addMovies(movies)))
-    .catch(error => dispatch(moviesFailed(error.message)))
+    .then(movies => dispatch({
+        type: ActionTypes.ADD_MOVIES,
+        payload:movies
+    }))
+    .catch(error => dispatch({
+        type: ActionTypes.MOVIES_FAILED,
+        payload: error.message
+    }));
 }
-
-export const moviesFailed = (errmess) => ({
-    type: ActionTypes.MOVIES_FAILED,
-    payload: errmess
-});
-
-export const addMovies = (movies) => ({
-    type: ActionTypes.ADD_MOVIES,
-    payload:movies,
-});
+}
